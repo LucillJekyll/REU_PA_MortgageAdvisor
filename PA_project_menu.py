@@ -9,44 +9,79 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import math
 
 class Ui_MainWindow(object):
+    def calculate_data(self):
+        stoimost = int(self.stoimost.text())
+        # rp_vznos = self.rp_vznos.text()
+        srok_kredita = int(self.srok_kredita.text())
+        # ejemes_platej = self.ejemes_platej.text()
+        stavka_kredita = int(self.stavka_kredita.text())
+        table = self.tabliza_raschet
+        table.clear()
+        table.setRowCount(int(srok_kredita))
+        table.setColumnCount(4)
+        table.setHorizontalHeaderLabels(['Оставшаяся сумма', 'Месяцев до окончания ипотеки',
+                                         'Ставка на текущий месяц', 'Сумма для внесения в этом месяце'])
+
+        stavka_per_month = stavka_kredita / srok_kredita
+        annuit_top = stoimost * stavka_per_month
+        annuit_bottom = 1 - (1 + stavka_per_month) * (1 - srok_kredita)
+        annuitent = annuit_top / annuit_bottom
+        stavka_for_now = stavka_kredita
+        row = 0
+        for month in range(srok_kredita):
+            difference = (stoimost / (srok_kredita - month)) + (stoimost * (stavka_for_now / 100))
+            stoimost -= difference
+            stavka_for_now = stavka_for_now - stavka_per_month
+
+            row_data = [round(stoimost,2), round(srok_kredita-month,2), round(stavka_for_now,2), round(difference,2)]
+            col = 0
+            for item in row_data:
+                cell = QtWidgets.QTableWidgetItem(str(item))
+                table.setItem(month, col, cell)
+                col += 1
+
+        table.resizeRowsToContents()
+        table.resizeColumnsToContents()
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1020, 709)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.tabliza_raschet = QtWidgets.QTableView(self.centralwidget)
+        self.tabliza_raschet = QtWidgets.QTableWidget(self.centralwidget)
         self.tabliza_raschet.setGeometry(QtCore.QRect(20, 220, 981, 421))
         self.tabliza_raschet.setObjectName("tabliza_raschet")
         self.stoimost = QtWidgets.QLineEdit(self.centralwidget)
         self.stoimost.setGeometry(QtCore.QRect(300, 40, 141, 31))
         self.stoimost.setObjectName("stoimost")
-        self.rp_vznos = QtWidgets.QLineEdit(self.centralwidget)
-        self.rp_vznos.setGeometry(QtCore.QRect(300, 100, 141, 31))
-        self.rp_vznos.setObjectName("rp_vznos")
+        # self.rp_vznos = QtWidgets.QLineEdit(self.centralwidget)
+        # self.rp_vznos.setGeometry(QtCore.QRect(300, 100, 141, 31))
+        # self.rp_vznos.setObjectName("rp_vznos")
         self.srok_kredita = QtWidgets.QLineEdit(self.centralwidget)
         self.srok_kredita.setGeometry(QtCore.QRect(650, 40, 101, 31))
         self.srok_kredita.setObjectName("srok_kredita")
-        self.ejemes_platej = QtWidgets.QLineEdit(self.centralwidget)
-        self.ejemes_platej.setGeometry(QtCore.QRect(300, 160, 141, 31))
-        self.ejemes_platej.setObjectName("ejemes_platej")
+        # self.ejemes_platej = QtWidgets.QLineEdit(self.centralwidget)
+        # self.ejemes_platej.setGeometry(QtCore.QRect(300, 160, 141, 31))
+        # self.ejemes_platej.setObjectName("ejemes_platej")
         self.stavka_kredita = QtWidgets.QLineEdit(self.centralwidget)
         self.stavka_kredita.setGeometry(QtCore.QRect(650, 100, 101, 31))
         self.stavka_kredita.setObjectName("stavka_kredita")
         self.raschet = QtWidgets.QPushButton(self.centralwidget)
         self.raschet.setGeometry(QtCore.QRect(790, 170, 211, 41))
         self.raschet.setObjectName("raschet")
+        self.raschet.clicked.connect(self.calculate_data)
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(30, 50, 181, 16))
         self.label.setObjectName("label")
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(20, 100, 261, 31))
-        self.label_2.setObjectName("label_2")
-        self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setGeometry(QtCore.QRect(30, 170, 191, 16))
-        self.label_3.setObjectName("label_3")
+        # self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        # self.label_2.setGeometry(QtCore.QRect(20, 100, 261, 31))
+        # self.label_2.setObjectName("label_2")
+        # self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        # self.label_3.setGeometry(QtCore.QRect(30, 170, 191, 16))
+        # self.label_3.setObjectName("label_3")
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
         self.label_4.setGeometry(QtCore.QRect(470, 50, 141, 16))
         self.label_4.setObjectName("label_4")
@@ -70,7 +105,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Ипотечный советник"))
         self.raschet.setText(_translate("MainWindow", "Выполнить расчет"))
         self.label.setText(_translate("MainWindow", "Стоимость объекта (тыс. руб.)"))
-        self.label_2.setText(_translate("MainWindow", "Размер первоначального взноса (тыс. руб.)"))
-        self.label_3.setText(_translate("MainWindow", "Размер ежемесячного платежа"))
+        # self.label_2.setText(_translate("MainWindow", "Размер первоначального взноса (тыс. руб.)"))
+        # self.label_3.setText(_translate("MainWindow", "Размер ежемесячного платежа"))
         self.label_4.setText(_translate("MainWindow", "Срок кредита (месяцы)"))
         self.label_5.setText(_translate("MainWindow", "Ставка кредита (%)"))
